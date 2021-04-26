@@ -1,0 +1,50 @@
+----------------------------------------------------
+                                        ,--./,-.
+        ___     __   __   __   ___     /,-._.--~\
+  |\ | |__  __ /  ` /  \ |__) |__         }  {
+  | \| |       \__, \__/ |  \ |___     \`-._,-`-,
+                                        `._,._,'
+  nf-core/proteomicslfq v1.1.0dev
+----------------------------------------------------
+
+Run Name: astonishing_goldstine
+
+## nf-core/proteomicslfq execution completed successfully! ##
+
+
+The workflow was completed at 2021-04-14T17:21:44.803694+02:00 (duration: 1h 23m 24s)
+
+The command used to launch the workflow was as follows:
+
+  nextflow run nf-core/proteomicslfq -r dev -profile docker --input 'https://raw.githubusercontent.com/bigbio/proteomics-metadata-standard/master/annotated-projects/PXD001819/PXD001819.sdrf.tsv' --database 'https://raw.githubusercontent.com/nf-core/test-datasets/proteomicslfq/testdata-aws/uniprot_yeast_reviewed_isoforms_ups1_crap.fasta_td.fasta' --max_memory 56.GB -with-report -with-trace -with-timeline
+
+
+
+Pipeline Configuration:
+-----------------------
+ - Pipeline Release: dev
+ - Run Name: astonishing_goldstine
+ - Input: https://raw.githubusercontent.com/bigbio/proteomics-metadata-standard/master/annotated-projects/PXD001819/PXD001819.sdrf.tsv
+ - Max Resources: 56.GB memory, 16 cpus, 10d time per job
+ - Container: docker - nfcore/proteomicslfq:dev
+ - Output dir: ./results
+ - Launch dir: /mnt/data/julians-data/wombat-p/OpenMS-ProteomicsLFQ
+ - Working dir: /mnt/data/julians-data/wombat-p/OpenMS-ProteomicsLFQ/work
+ - Script dir: /home/julian/.nextflow/assets/nf-core/proteomicslfq
+ - User: julian
+ - Config Profile: docker
+ - Config Files: /home/julian/.nextflow/assets/nf-core/proteomicslfq/nextflow.config
+ - Date Started: 2021-04-14T15:58:21.004668+02:00
+ - Date Completed: 2021-04-14T17:21:44.803694+02:00
+ - Pipeline script file path: /home/julian/.nextflow/assets/nf-core/proteomicslfq/main.nf
+ - Pipeline script hash ID: 63d443cf82cf0ed2a9bed118d26ade9c
+ - Pipeline repository Git URL: https://github.com/nf-core/proteomicslfq
+ - Pipeline repository Git Commit: fe578bcb685564762337772226efd1e3b3f87353
+ - Pipeline Git branch/tag: dev
+ - Nextflow Version: 20.10.0
+ - Nextflow Build: 5430
+ - Nextflow Compile Timestamp: 01-11-2020 15:14 UTC
+
+--
+nf-core/proteomicslfq
+https://github.com/nf-core/proteomicslfq

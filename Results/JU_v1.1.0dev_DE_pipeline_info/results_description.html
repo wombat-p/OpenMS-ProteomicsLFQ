@@ -1,0 +1,165 @@
+<!DOCTYPE html><html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style>
+            body {
+              font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+              padding: 3em;
+              margin-right: 350px;
+              max-width: 100%;
+            }
+            .toc {
+              position: fixed;
+              right: 20px;
+              width: 300px;
+              padding-top: 20px;
+              overflow: scroll;
+              height: calc(100% - 3em - 20px);
+            }
+            .toctitle {
+              font-size: 1.8em;
+              font-weight: bold;
+            }
+            .toc > ul {
+              padding: 0;
+              margin: 1rem 0;
+              list-style-type: none;
+            }
+            .toc > ul ul { padding-left: 20px; }
+            .toc > ul > li > a { display: none; }
+            img { max-width: 800px; }
+            pre {
+              padding: 0.6em 1em;
+            }
+            h2 {
+
+            }
+        </style>
+    </head>
+    <body>
+    <div class="container">
+    <div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#nf-coreproteomicslfq-output">nf-core/proteomicslfq: Output</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#pipeline-overview">Pipeline overview</a></li>
+<li><a href="#output-structure">Output structure</a></li>
+<li><a href="#output-description">Output description</a><ul>
+<li><a href="#nextflow-pipeline-info">Nextflow pipeline info</a></li>
+<li><a href="#identifications">Identifications</a></li>
+<li><a href="#proteomicslfq-main-output">ProteomicsLFQ main output</a><ul>
+<li><a href="#consensusxml">ConsensusXML</a></li>
+<li><a href="#msstats-ready-quantity-table">MSstats-ready quantity table</a></li>
+<li><a href="#mztab">mzTab</a></li>
+</ul>
+</li>
+<li><a href="#msstats-output">MSstats output</a><ul>
+<li><a href="#msstats-mztab">MSstats mzTab</a></li>
+<li><a href="#msstats-table">MSstats table</a></li>
+<li><a href="#msstats-plots">MSstats plots</a></li>
+</ul>
+</li>
+<li><a href="#ptxqc-output">PTXQC output</a><ul>
+<li><a href="#ptxqc-report">PTXQC report</a></li>
+<li><a href="#ptxqc-yaml-config">PTXQC yaml config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h1 id="nf-coreproteomicslfq-output">nf-core/proteomicslfq: Output</h1>
+<h2 id="introduction">Introduction</h2>
+<p>This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.</p>
+<p>The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.</p>
+<h2 id="pipeline-overview">Pipeline overview</h2>
+<p>The pipeline is built using <a href="https://www.nextflow.io/">Nextflow</a>
+and processes data using the following steps:</p>
+<ol>
+<li>(optional) Conversion of spectra data to indexedMzML: Using ThermoRawFileParser if Thermo Raw or using OpenMS' FileConverter if just an index is missing</li>
+<li>(optional) Decoy database generation for the provided DB (fasta) with OpenMS</li>
+<li>Database search with either MSGF+ and/or Comet through OpenMS adapters</li>
+<li>Re-mapping potentially identified peptides to the input database for consistency and error-checking (using OpenMS' PeptideIndexer)</li>
+<li>PSM rescoring using PSMFeatureExtractor and Percolator or a PeptideProphet-like distribution fitting approach in OpenMS</li>
+<li>If multiple search engines were chosen, the results are combined with OpenMS' ConsensusID</li>
+<li>If multiple search engines were chosen, a combined FDR is calculated</li>
+<li>Single run PSM/Peptide-level FDR filtering</li>
+<li>If localization of modifications was requested, Luciphor2 is applied via the OpenMS adapter</li>
+<li>Protein inference and labelfree quantification based on spectral counting or MS1 feature detection, alignment and integration with OpenMS' ProteomicsLFQ. Performs an additional experiment-wide FDR filter on protein (and if requested peptide/PSM-level).</li>
+</ol>
+<p>A rough visualization follows:</p>
+<p><img alt="proteomicslfq workflow" src="./images/proteomicslfq.svg" /></p>
+<h2 id="output-structure">Output structure</h2>
+<p>Output is by default written to the $NXF_WORKSPACE/results folder.
+The output consists of the following folders (follow the links for a more detailed description):</p>
+<p>results</p>
+<ul>
+<li>ids</li>
+<li><a href="#identifications">*.idXML</a></li>
+<li>logs (extended log files for all steps)</li>
+<li>*.log</li>
+<li>msstats</li>
+<li><a href="#msstats-plots">ComparisonPlot.pdf</a></li>
+<li><a href="#msstats-plots">VolcanoPlot.pdf</a></li>
+<li><a href="#msstats-plots">Heatmap.pdf</a></li>
+<li><a href="#msstats-table">msstats_results.csv</a></li>
+<li><a href="#msstats-mztab">msstats_out.mzTab</a></li>
+<li>pipeline_info (general nextflow infos)</li>
+<li><a href="#nextflow-pipeline-info">...</a></li>
+<li>proteomics_lfq</li>
+<li><a href="#debug-output">debug_*.idXML</a></li>
+<li><a href="#consenusxml">out.consensusXML</a></li>
+<li><a href="#msstats-ready-quantity-table">out.csv</a></li>
+<li><a href="#mztab">out.mzTab</a></li>
+<li>ptxqc (quality control)</li>
+<li><a href="#ptxqc-yaml-config">report_vX.X.X_out.yaml</a></li>
+<li><a href="#ptxqc-report">report_vX.X.X_out_${hash}.html</a></li>
+<li><a href="#ptxqc-report">report_vX.X.X_out_${hash}.pdf</a></li>
+</ul>
+<h2 id="output-description">Output description</h2>
+<h3 id="nextflow-pipeline-info">Nextflow pipeline info</h3>
+<p><a href="https://www.nextflow.io/docs/latest/tracing.html">Nextflow</a> provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.</p>
+<p><strong>Output files:</strong></p>
+<ul>
+<li><code>pipeline_info/</code></li>
+<li>Reports generated by Nextflow: <code>execution_report.html</code>, <code>execution_timeline.html</code>, <code>execution_trace.txt</code> and <code>pipeline_dag.dot</code>/<code>pipeline_dag.svg</code>.</li>
+<li>Reports generated by the pipeline: <code>pipeline_report.html</code>, <code>pipeline_report.txt</code> and <code>software_versions.csv</code>.</li>
+<li>Documentation for interpretation of results in HTML format: <code>results_description.html</code>.</li>
+</ul>
+<h3 id="identifications">Identifications</h3>
+<p>Intermediate output for the PSM/peptide-level filtered identifications per raw/mzML file in OpenMS'
+internal <a href="https://github.com/OpenMS/OpenMS/blob/develop/share/OpenMS/SCHEMAS/IdXML_1_5.xsd">idXML</a> format.</p>
+<h3 id="proteomicslfq-main-output">ProteomicsLFQ main output</h3>
+<p>The <code>proteomics_lfq</code> folder contains the output of the pipeline without any statistical postprocessing.
+It is available in three different formats:</p>
+<h4 id="consensusxml">ConsensusXML</h4>
+<p>A <a href="https://github.com/OpenMS/OpenMS/blob/develop/share/OpenMS/SCHEMAS/ConsensusXML_1_7.xsd">consensusXML</a> file as the closest representation of the internal data
+structures generated by OpenMS. Helpful for debugging and downstream processing with OpenMS tools.</p>
+<h4 id="msstats-ready-quantity-table">MSstats-ready quantity table</h4>
+<p>A simple tsv file ready to be read by the OpenMStoMSstats function of the MSstats R package. It should hold
+the same quantities as the consensusXML but rearranged in a "long" table format with additional information
+about the experimental design used by MSstats.</p>
+<h4 id="mztab">mzTab</h4>
+<p>A complete <a href="https://github.com/HUPO-PSI/mzTab">mzTab</a> file ready for submission to <a href="https://www.ebi.ac.uk/pride/">PRIDE</a>.</p>
+<h3 id="msstats-output">MSstats output</h3>
+<p>The <code>msstats</code> folder contains <a href="https://github.com/MeenaChoi/MSstats">MSstats</a>' post-processed (e.g. imputation, outlier removal) quantities and statistical
+measures of significance for different tested contrasts of the given experimental design. It also includes basic plots of these results.
+The results will only be available if there was more than one condition.</p>
+<h4 id="msstats-mztab">MSstats mzTab</h4>
+<p>The <a href="https://github.com/HUPO-PSI/mzTab">mzTab</a> from the proteomics_lfq folder with replaced normalized and imputed quantities from MSstats. This might contain less quantities since MSstats filters proteins with too many missing values.</p>
+<h4 id="msstats-table">MSstats table</h4>
+<p>See <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/MSstats/inst/doc/MSstats.html">MSstats vignette</a>.</p>
+<h4 id="msstats-plots">MSstats plots</h4>
+<p>See <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/MSstats/inst/doc/MSstats.html">MSstats vignette</a> for groupComparisonPlots (Heatmap, VolcanoPlot and ComparisonPlot (per protein)).</p>
+<h3 id="ptxqc-output">PTXQC output</h3>
+<p>If activated, the <code>ptxqc</code> folder will contain the report of the <a href="https://cran.r-project.org/web/packages/PTXQC/index.html">PTXQC R package</a> based on the mzTab output of proteomicsLFQ.</p>
+<h4 id="ptxqc-report">PTXQC report</h4>
+<p>See <a href="https://cran.r-project.org/web/packages/PTXQC/index.html">PTXQC vignette</a>. In the report itself the calculated and visualized QC metrics are actually quite extensively described already.</p>
+<h4 id="ptxqc-yaml-config">PTXQC yaml config</h4>
+<p>The default yaml config used to configure the structure of the QC report. In case you need to restructure, please edit this file and
+re-run PTXQC manually.</p>
+    </div>
+    </body>
+    </html>
+    
