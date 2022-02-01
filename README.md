@@ -5,7 +5,8 @@ Instructions:
 * Install Java 8+
 * Install docker or singularity
 * Install nextflow (`wget -qO- https://get.nextflow.io | bash`)
-* ~/nextflow run nf-core/proteomicslfq -r dev -profile docker --input https://raw.githubusercontent.com/bigbio/proteomics-metadata-standard/master/annotated-projects/PXD001819/PXD001819.sdrf.tsv --database https://raw.githubusercontent.com/wombat-p/Transproteomic-Pipeline/dev/Results/yeast_UPS.fasta -with-report -with-trace -with-timeline
+* ~/nextflow run nf-core/proteomicslfq -r dev -profile docker --input https://raw.githubusercontent.com/bigbio/proteomics-metadata-standard/master/annotated-projects/PXD001819/PXD001819.sdrf.tsv --database https://raw.githubusercontent.com/wombat-p/Transproteomic-Pipeline/dev/Results/yeast_UPS.fasta  --add_decoys
+ -with-report -with-trace -with-timeline
 
 Results:
 
